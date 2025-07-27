@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Clicker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="header">
+      <h1>
+        Je veux trouver un JOB . . . <span class="title">HA ! Une offre ?</span>
+      </h1>
+    </div>
+
+    <div class="container">
+      <div class="left-side">
+        <!-- Bouton du game-play -->
+        <div class="top-button">
+          <div class="gameBtn">
+            <a href="#" id="btnClicPM" class="action-button"> Je postule ! </a>
+          </div>
+          <button id="btnClicFT" class="click-button">
+            Je m'inscris à <strong>TROUVE TON JOB</strong>
+          </button>
+          <div class="information">informations relatives à tes actions</div>
+        </div>
+        <!-- Boutons des améliorations -->
+        <div class="buttons">
+          <!-- Les réseaux -->
+          <div class="update-btn">
+            <button id="btnClicPr" class="click-button">
+              J'active mon réseau (100PM)
+            </button>
+            <div id="socialnetZone" class=""></div>
+          </div>
+          <!-- Le CV -->
+          <div class="updateBTN">
+            <h3>J'amélioration ma motivation</h3>
+            <div id="motivationZone" class=""></div>
+            <div id="clicScripZone" class=""></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-side">
+        <!-- Statistiques en lien avec les clicks -->
+        <div class="statistics">
+          <p>Point de Motivation PM : <span id="scorePM">0</span></p>
+          <p>Point de Réseau PR : <span id="scorePR">0</span></p>
+          <p>Niveau de motivation : <span id="levelPM">1</span></p>
+          <p>Inscription <strong>TROUVE TON JOB</strong> : <span>NON</span></p>
+          <p>Réseau activé : <span>NON</span></p>
+        </div>
+
+        <!-- Boutique des améliorations -->
+        <div class="shopping-list">
+          <span>BOUTIQUE</span>
+          <hr />
+          <p id="clicScript">Achetert un script de clic automatique</p>
+          <p id="formation">Acheter de formations en ligne</p>
+          <p id="webinaire">Acheter un webinaire de motivation</p>
+          <p id="certification">Acheter une formation certifiante</p>
+        </div>
+
+        <!-- Condition de fin du jeu -->
+        <div class="final-development">
+          <span>OBJECTIF FINAL</span>
+          <hr />
+          <p id="jobTalk">TU passes un entretien décisif ... 😃</p>
+          <p id="jobFound">T'es embauché ! T'as trouvé un JOB !!!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

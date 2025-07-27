@@ -1,0 +1,15 @@
+* {
+   padding: 0;
+   margin: 0;
+   box-sizing: border-box;
+}
+body {
+   height: 100vh;
+   font-family: Verdana, Geneva, Tahoma, sans-serif;
+   text-align: center;
+}
+.container {
+   display: flex;
+   justify-content: space-around; /***/
+   margin-top: 50px;
+}
