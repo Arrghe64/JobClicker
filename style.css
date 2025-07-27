@@ -1,15 +1,164 @@
 * {
    padding: 0;
    margin: 0;
-   box-sizing: border-box;
+   /* box-sizing: border-box; */
 }
 body {
    height: 100vh;
    font-family: Verdana, Geneva, Tahoma, sans-serif;
    text-align: center;
 }
+.header {
+   padding-top: 30px;
+}
 .container {
    display: flex;
-   justify-content: space-around; /***/
-   margin-top: 50px;
+}
+.left-side, .right-side {
+   width: 50vw;
+   height: 75vh;
+   display: flex;
+   flex-direction: column;
+   margin: 50px 10px 0 20px;
+}
+.left-side {
+   .top-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      .game-btn {
+         height: 90px;
+         width: 100%;
+         display: flex;
+         justify-content: center;
+         .action-button {
+            width: 80%;
+            background-color: #de3232;
+            color: #fafafa;
+            font-family: cursive;
+            font-size: 2rem;
+            text-decoration: none;
+            padding: 20px 40px;
+            border-radius: 10px;
+            border-bottom: 5px solid #9b2323;
+            text-shadow: 0px -2px #9b2323;
+            transition: all 0.1s;
+            -webkit-transition: all 0.1s;
+            float: left;
+         }
+         .action-button:active {
+            transform: translate(0, 5px);
+            -webkit-transform: (0, 5px);
+            border-bottom: 1px solid;
+         }
+      }
+   }
+   .click-button {
+      width: 80%;
+      font-size: 20px;
+      padding: 10px;
+      border-radius: 7px;
+      border: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+   }
+   .buttons {
+      height: 71px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      .update-btn {
+         width: 50%;
+         height: 100%;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         gap: 5px;
+         #btnClicPR {
+            height: 50px;
+         }
+      }
+      h3 {
+         margin-top: 25px;
+         font-family: cursive;
+         font-size: 1.5rem;
+      }
+   }
+   #socialnetZone {
+      .click-button {
+         width: 340px;
+      }
+   }
+   #socialnetZone, #motivationZone, #clicScripZone {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+   }
+}
+.right-side {
+   border-left: 1px solid;
+   text-align: left;
+   padding-left: 20px;
+   p {
+      font-size: 1.5rem;
+      padding-bottom: 5px;
+   }
+   .statistics {
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+   }
+   #scorePM, #scorePR, #levelPM {
+      font-size: 1.5rem;
+      margin: 20px;
+   }
+   hr {
+      height: 1px;
+      border: none;
+      background-color: #9b2323;
+   }
+   span.section {
+      font-size: 1.2rem;
+   }
+   .shopping-list {
+      margin: 20px;
+      /* display: none; */
+      display: block;
+      p {
+         font-size: 1.2rem;
+      }
+      #clicScript {
+         display: block;
+         /* display: none; */
+      }
+      #formation {
+         display: block;
+         /* display: none; */
+      }
+      #webinaire {
+         display: block;
+         /* display: none; */
+      }
+      #certification {
+         display: block;
+         /* display: none; */
+      }
+   }
+   .final-development {
+      margin: 10px 20px;
+      /* display: none; */
+      display: block;
+      p {
+         font-size: 1.2rem;
+      }
+   }
+}
+.footer {
+   padding: 20px;
 }
