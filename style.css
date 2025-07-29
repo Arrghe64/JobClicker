@@ -42,12 +42,14 @@ body {
             font-size: 2rem;
             text-decoration: none;
             padding: 20px 40px;
+            text-shadow: 0px -2px #9b2323;
+
             border-radius: 10px;
             border-bottom: 5px solid #9b2323;
-            text-shadow: 0px -2px #9b2323;
             transition: all 0.1s;
             -webkit-transition: all 0.1s;
-            float: left;
+            /* float: left; */
+            /* cursor: pointer; */
          }
          .action-button:active {
             transform: translate(0, 5px);
@@ -129,38 +131,59 @@ body {
       height: 1px;
       border: none;
       background-color: #9b2323;
+      margin-bottom: 5px;
    }
    span.section {
       font-size: 1.2rem;
    }
    .shopping-list {
       margin: 20px;
-      /* display: none; */
-      display: block;
+      /* display: block; */
+      display: none;
       p {
          font-size: 1.2rem;
+         height: 40px;
       }
+      a {
+         text-decoration: none;
+         display: inline-block;
+         width: 30px;
+         height: 30px;
+         background-color: #ff7b00;
+         color: #fff;
+         text-align: center;
+         padding-top: 5px;
+         border-radius: 7px;
+         border-bottom: 4px solid #9e4c00;
+         transition: all 0.1s;
+         -webkit-transition: all 0.1s;
+      }
+      /* a:active {
+         transform: translate(0, 5px);
+         -webkit-transform: (0, 5px);
+         border-bottom: 1px solid;
+      } */
       #clicScript {
-         display: block;
-         /* display: none; */
+         /* display: block; */
+         display: none;
       }
       #formation {
-         display: block;
-         /* display: none; */
+         /* display: block; */
+         display: none;
       }
       #webinaire {
-         display: block;
-         /* display: none; */
+         /* display: block; */
+         display: none;
       }
       #certification {
-         display: block;
-         /* display: none; */
+         /* display: block; */
+         display: none;
       }
    }
    .final-development {
       margin: 10px 20px;
-      /* display: none; */
-      display: block;
+      display: none;
+      /* display: block; */
       p {
          font-size: 1.2rem;
       }
