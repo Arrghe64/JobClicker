@@ -18,27 +18,27 @@
         <!-- Bouton du game-play -->
         <div class="top-buttons">
           <div class="game-btn">
-            <a href="#" id="btnClicPM" class="action-button"> Je postule ! </a>
+            <a href="#" id="btnAddPM" class="action-button"> Je postule ! </a>
           </div>
-          <button id="btnClicFT" class="click-button">
+          <button id="btnJobAgencyRegistration" class="click-button">
             Je m'inscris à <strong>TROUVE TON JOB</strong>
           </button>
-          <div class="information">informations relatives à tes actions</div>
+          <div class="informations">informations relatives à tes actions</div>
         </div>
         <!-- Boutons des améliorations -->
         <div class="buttons">
           <!-- Les réseaux -->
           <div class="update-btn">
-            <button id="btnClicPr" class="click-button">
+            <button id="btnSocialActivation" class="click-button">
               J'active mon réseau (100PM)
             </button>
-            <div id="socialnetZone" class=""></div>
+            <div id="betterSocialSection" class=""></div>
           </div>
           <!-- Le CV -->
-          <div class="updateBTN">
+          <div class="update-btn">
             <h3>J'amélioration ma motivation</h3>
-            <div id="motivationZone" class=""></div>
-            <div id="clicScripZone" class=""></div>
+            <div id="betterMotivationSection" class="section-better"></div>
+            <!-- <div id="clicScripZone" class="section-better"></div> -->
           </div>
         </div>
       </div>
@@ -49,7 +49,10 @@
           <p>Point de Motivation PM : <span id="scorePM">0</span></p>
           <p>Point de Réseau PR : <span id="scorePR">0</span></p>
           <p>Niveau de motivation : <span id="levelPM">1</span></p>
-          <p>Inscription <strong>TROUVE TON JOB</strong> : <span>NON</span></p>
+          <p>
+            Inscription <strong>TROUVE TON JOB</strong> :
+            <span id="agencyRegist">NON</span>
+          </p>
           <p>Réseau activé : <span>NON</span></p>
         </div>
 
@@ -58,7 +61,7 @@
           <span class="section">BOUTIQUE</span>
           <hr />
           <p id="clicScript">Achetert un script de clic automatique</p>
-          <p id="formation">Acheter de formations en ligne</p>
+          <p id="formation">Acheter un cours en ligne</p>
           <p id="webinaire">Acheter un webinaire de motivation</p>
           <p id="certification">Acheter une formation certifiante</p>
         </div>
@@ -83,6 +86,6 @@
       </p>
     </div>
 
-    <script src="script.js"></script>
+    <script src="./scripts/script.js"></script>
   </body>
 </html>

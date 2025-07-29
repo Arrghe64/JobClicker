@@ -1,0 +1,38 @@
+[
+  {
+    "id": 0,
+    "name": "demande de justificatif",
+    "effect": "",
+    "setTimeout" : ""
+  },
+  {
+    "id": 1,
+    "name": "BUG sur le site",
+    "effect": "",
+    "setTimeout" : ""
+  },
+  {
+    "id": 2,
+    "name": "Offre sans réponse",
+    "effect": "",
+    "setTimeout" : ""
+  },
+  {
+    "id": 3,
+    "name": "Mail de refus automatique",
+    "effect": "",
+    "setTimeout" : ""
+  },
+  {
+    "id": 4,
+    "name": "Annonce 'fake'",
+    "effect": "",
+    "setTimeout" : ""
+  },
+  {
+    "id": 5,
+    "name": "",
+    "effect": "",
+    "setTimeout" : ""
+  }
+]

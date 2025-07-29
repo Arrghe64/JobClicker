@@ -56,6 +56,13 @@ body {
          }
       }
    }
+   .informations {
+      font-style: italic;
+   }
+   .agency-regist {
+      background-color: #4646ff;
+      color: #fafafa;
+   }
    .click-button {
       width: 80%;
       font-size: 20px;
@@ -83,7 +90,7 @@ body {
          }
       }
       h3 {
-         margin-top: 25px;
+         /* margin-top: 5px; */
          font-family: cursive;
          font-size: 1.5rem;
       }
@@ -93,7 +100,7 @@ body {
          width: 340px;
       }
    }
-   #socialnetZone, #motivationZone, #clicScripZone {
+   .section-better {
       margin-top: 20px;
       display: flex;
       flex-direction: column;
@@ -160,5 +167,5 @@ body {
    }
 }
 .footer {
-   padding: 20px;
+   padding: 10px;
 }
