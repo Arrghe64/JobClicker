@@ -69,6 +69,7 @@ body {
       width: 80%;
       font-size: 20px;
       padding: 10px;
+      /* margin-bottom: 10px; */
       border-radius: 7px;
       border: none;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -97,11 +98,7 @@ body {
          font-size: 1.5rem;
       }
    }
-   #socialnetZone {
-      .click-button {
-         width: 340px;
-      }
-   }
+   
    .section-better {
       margin-top: 20px;
       display: flex;

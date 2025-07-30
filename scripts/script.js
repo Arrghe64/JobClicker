@@ -1,13 +1,18 @@
 //***** LES VARIABLES GLOBALES *****//
-
-let social = 0;
-// Nombre de points gagnés par clic
-let prPerClick = 0;
-let passiveBonusPR = 0;
-let malusActif = false; // Activation d'un malus
+// Coût en PM ou PR pour activer un bonus
+const autoclickCost = 300; //! PM pour activer l'autoclic : 300
+const socialCost = 100; //! PM pour activer le réseau : 100
+const commentPostCost = 300; //! PM pour commenter un post : 300
+const publishPostCost = 75; //! PR pour publier un post : 75
 
 let motivation = 0;
 let pmPerClick = 1;
+let social = 0;
+let prPerClick = 0;
+let autoClickerGain = 1; //! ou pmPerClick (nombre de PM par clic, donne le niveau de motivation)
+let passiveBonusPR = 0;
+let malusActif = false; // Activation d'un malus
+
 //* Clic principal >>> +1 PM à chaque clic au début
 function jobClicker() {
   motivation += pmPerClick;
@@ -17,7 +22,7 @@ function jobClicker() {
 let jobadminRegistration = false;
 let motivationBtnCreated = false; // activation des boutons réseau
 const betterMotivSection = document.getElementById("betterMotivationSection"); // section motivation
-const betterSocialSection = document.getElementById("betterSocialSection"); // section réseau
+const betterSocialSection = document.getElementById("betterSocialSection"); // section affichage réseau
 
 //* Inscription à Touve-Ton-Job
 function TTJactivated() {
@@ -76,24 +81,126 @@ function TTJactivated() {
   betterMotivSection.appendChild(btnLM);
 }
 
-let socialActiveted = false;
+let isSocialNetworkActive = false;
 //* Activation du réseau social
 function activateSocial() {
-  if (!jobadminRegistration) {
-    return;
-  } else {
-    socialActiveted = true;
-  }
+  isSocialNetworkActive = true;
+  console.log("Réseau social activé : ", isSocialNetworkActive);
 }
 
+const socialActivationBtn = document.getElementById("btnSocialActivation"); // bouton "J'active mon réseau"
 let socialnetButtonsCreated = false;
-//* Céer les boutons du réseau social
+
+//* Céer le réseau social, les boutons et la logique
 function createSocialNetwork() {
-  if (socialnetButtonsCreated) return;
-  socialnetButtonsCreated = true;
-  activateSocial();
-  
+  // VÉRIFICATION : Est-ce que "Trouve Ton Job" est activé ?
+  if (!jobadminRegistration) {
+    updateInformations("Tu dois d'abord t'inscrire à TROUVE TON JOB ! 📝");
+    return; // arrêt si TTJ pas activé
+  }
+
+  // Empêche la recréation des boutons
+  if (socialnetButtonsCreated) {
+    updateInformations("Réseau social déjà activé ! 👥");
+    return;
+  }
+
+  // Condition d'activatoin de la section sociale
+  if (motivation >= socialCost) {
+    motivation -= socialCost;
+    socialActivationBtn.style.backgroundColor = "#ffa500";
+    document.getElementById("socialActivated").textContent = "OUI";
+
+    activateSocial();
+    // isSocialNetworkActive = true; // marquer le réseau social comme actif
+    socialnetButtonsCreated = true; // Marquer les boutons comme créés
+
+    // --- Créer les boutons en lien avec le réseau social
+    // Commenter un post >>> gain = +5PR/s pendant 20s
+    const btnPostComment = document.createElement("button");
+    btnPostComment.textContent = `Commenter un post (${commentPostCost} PM)`;
+    btnPostComment.classList.add("click-button");
+    btnPostComment.style.backgroundColor = "#c3ff00";
+    btnPostComment.addEventListener("click", () => {
+      if (motivation >= commentPostCost) {
+        motivation -= commentPostCost;
+        startPassiveEfects({
+          duration: 20000, //20s
+          interval: 1000, //1s
+          effect: () => {
+            social += 5;
+            displayUpdate();
+          },
+          onEnd: () => {
+            updateInformations("L'effet de ton commentaire s'estompe... 😶‍🌫️");
+          },
+        });
+        updateInformations("Ton post fait réagir : +5 PR/s pendant 20s 🔥");
+        displayUpdate();
+      } else {
+        updateInformations("Pas assez de motivation pour commenter ce post 😓");
+      }
+    });
+
+    // Ajouter un post >>> gain +10PR/min (après on ajoute 1 aux gains PR >>> +11, +12 etc...)
+    let postCooldown = false; // Temps entre chaque publication activé
+
+    const btnPostPublish = document.createElement("button");
+    btnPostPublish.innerHTML = `Publier un post <br> (${publishPostCost} PR)`;
+    btnPostPublish.classList.add("click-button");
+    btnPostPublish.style.backgroundColor = "#c3ff00";
+
+    btnPostPublish.addEventListener("click", () => {
+      if (postCooldown) {
+        updateInformations("Tu viens de publier, attends un peu ⏳");
+        return;
+      }
+
+      if (social >= publishPostCost) {
+        social -= publishPostCost;
+        passiveBonusPR += 1; //gain passif de PR
+        postCooldown = true;
+        updateInformations("Ton post fait le buzz ! PR/min +1 🔁");
+        displayUpdate();
+
+        // Cooldown de 3 secondes
+        setTimeout(() => {
+          postCooldown = false;
+        }, 3000);
+      } else {
+        updateInformations("Pas assez de point réseau pour publier ce post 😓");
+      }
+    });
+
+    // Ajouter les boutons au DOM
+    betterSocialSection.appendChild(btnPostComment);
+    betterSocialSection.appendChild(btnPostPublish);
+    // changer le texte du bouton d'activation du réseau social une fois activé
+    socialActivationBtn.innerHTML = `Réseau social activé <br><strong>OK</strong>`;
+  } else {
+    updateInformations(
+      `Tu as besoin de ${socialCost} PM pour activer ton réseau ! 😔`
+    );
+  }
+  displayUpdate();
 }
+
+//* Fonction pour gérer les effets passifs temporaires
+function startPassiveEfects({ duration, interval, effect, onEnd }) {
+  const effectInterval = setInterval(effect, interval);
+  setTimeout(() => {
+    clearInterval(effectInterval);
+    if (onEnd) onEnd();
+  }, duration);
+}
+
+//* Lancer la possibilité de publier un post régulièrement
+setInterval(() => {
+  if (passiveBonusPR > 0) {
+    social += passiveBonusPR;
+    displayUpdate();
+  }
+}, 30000);
 
 // Déclaration globale du bouton autoclic
 const btnAutoclicScript = document.createElement("button");
@@ -103,20 +210,21 @@ let shoppingClickScript = false; // script automatique
 function setupAutoclicButton() {
   btnAutoclicScript.textContent = `J'achète un script auto-clic (300 PM)`;
   btnAutoclicScript.classList.add("click-button");
-  btnAutoclicScript.style.backgroundColor = "#ff7b00";
+  btnAutoclicScript.style.backgroundColor = "#ffa500";
 
   btnAutoclicScript.addEventListener("click", () => {
-    if (motivation >= 300) {
-      motivation -= 300;
+    if (motivation >= autoclickCost) {
+      motivation -= autoclickCost;
       shoppingClickScript = true; // Active le flag de l'autoclic
       updateInformations("Clic automatique activé ! 🤖");
       startautoclick(); // Démarre le clic automatique
       btnAutoclicScript.disabled = true; // Désactive le bouton
       btnAutoclicScript.textContent = "Clic automatique (Activé)"; // Change le texte du bouton
+      btnAutoclicScript.style.backgroundColor = "#ffb381";
       displayUpdate();
     } else {
       updateInformations(
-        "Pas assez de motivation pour activer le script auto-clic !"
+        "Pas assez de motivation pour activer le script auto-clic ! 😔"
       );
     }
   });
@@ -128,7 +236,7 @@ function startautoclick() {
   // S'assure que l'intervalle n'est démarré qu'une fois
   if (!autoclickInterval) {
     autoclickInterval = setInterval(() => {
-      motivation += 1; // Tu peux ajuster le gain ici
+      motivation += autoClickerGain;
       displayUpdate();
     }, 1000); // Clique toutes les secondes (1000ms)
   }
@@ -143,7 +251,6 @@ const PMdisplay = document.getElementById("scorePM"); // score PM
 const PRdisplay = document.getElementById("scorePR"); // score PR
 const PMlevelDisplay = document.getElementById("levelPM"); // niveau (x le nbr de PM par clic)
 const AdminActiveBtn = document.getElementById("btnJobAgencyRegistration"); // bouton Trouve Ton Job
-const socialActivationBtn = document.getElementById("btnSocialActivation"); // bouton pour activer les réseaux
 const shoppingListSection = document.querySelector(".shopping-list"); // affichage de la boutique
 const clicScriptP = document.getElementById("clicScript"); // affichage de la disponibilité de l'autoclic
 
@@ -208,6 +315,7 @@ socialActivationBtn.addEventListener("click", () => createSocialNetwork());
 // --- Initialisation au chargement du DOM ---
 document.addEventListener("DOMContentLoaded", () => {
   displayUpdate(); // Appel initial pour s'assurer que les scores sont à jour
+  socialActivationBtn.innerHTML = `J'active mon réseau </br> (${socialCost} PM)`;
   // Cache la boutique au démarrage
   if (shoppingListSection) {
     shoppingListSection.style.display = "none";
