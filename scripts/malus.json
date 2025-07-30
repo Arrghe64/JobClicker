@@ -3,7 +3,7 @@
     "id": "justificatif_demande",
     "name": "Justificatif demandé par Trouve Ton Job",
     "description": "Trouve Ton Job t’a demandé un justificatif 😩",
-    "type": "multiplier",
+    "type": "multiply",
     "target": "pmPerClick",
     "value": 0.8,
     "durationMs": 15000,

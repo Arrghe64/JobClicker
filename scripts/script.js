@@ -1,5 +1,5 @@
 //***** LES VARIABLES GLOBALES *****//
-// Coût en PM ou PR pour activer un bonus
+// --- Coût en PM ou PR pour activer un bonus ---
 const autoclickCost = 300; //! PM pour activer l'autoclic : 300
 const socialCost = 100; //! PM pour activer le réseau : 100
 const commentPostCost = 300; //! PM pour commenter un post : 300
@@ -12,9 +12,43 @@ let prPerClick = 0;
 let autoClickerGain = 1; //! ou pmPerClick (nombre de PM par clic, donne le niveau de motivation)
 let passiveBonusPR = 0;
 let malusActif = false; // Activation d'un malus
+let prPerSec = 0; // Nombre de PR par secondes
+
+// --- Varibles correspondant aux différents bugs ---
+let isClickingEnable = true; // Pour le malus "Bug sur le site"
+let clicksRemainingForMalus = 0; // Pour le malus "offre sans réponse"
+let originalPmPerClick = 0; // Pour stocker les PM avant malus
+let originalPassiveBonusPR = 0; // Pour stocker les PR avant malus
+
+const mainClickButton = document.getElementById("btnAddPM"); // bouton "Je postule !"
+//* Fonction pour désactiver/activer les clics sur le bouton principal
+function disableClics(disable) {
+  if (mainClickButton) {
+    mainClickButton.disable = disable;
+  }
+}
 
 //* Clic principal >>> +1 PM à chaque clic au début
 function jobClicker() {
+  if (!isClickingEnable) {
+    updateInformations("Tu ne peux pas cliquer pour l'instant ! ⛔");
+    return;
+  }
+
+  // Logique spécifique au malus "Offre sans réponse"
+  if (clicksRemainingForMalus > 0) {
+    clicksRemainingForMalus--;
+    updateInformations(
+      `PM bloqués... ${clicksRemainingForMalus} clics restants.`
+    );
+    if (clicksRemainingForMalus <= 0) {
+      pmPerClick = originalPmPerClick;
+      updateInformations("Tu reprends confiance, les gains de PM reviennent !");
+    }
+    // ne gagne pas de motivation si bliqué par ce malus
+    return;
+  }
+
   motivation += pmPerClick;
   displayUpdate();
 }
@@ -81,15 +115,15 @@ function TTJactivated() {
   betterMotivSection.appendChild(btnLM);
 }
 
+let socialnetButtonsCreated = false;
 let isSocialNetworkActive = false;
+const socialActivationBtn = document.getElementById("btnSocialActivation"); // bouton "J'active mon réseau"
+
 //* Activation du réseau social
 function activateSocial() {
   isSocialNetworkActive = true;
   console.log("Réseau social activé : ", isSocialNetworkActive);
 }
-
-const socialActivationBtn = document.getElementById("btnSocialActivation"); // bouton "J'active mon réseau"
-let socialnetButtonsCreated = false;
 
 //* Céer le réseau social, les boutons et la logique
 function createSocialNetwork() {
@@ -206,7 +240,7 @@ setInterval(() => {
 const btnAutoclicScript = document.createElement("button");
 let shoppingClickScript = false; // script automatique
 
-//* Créer et configurer le bouton du script automatique
+//* Créer et configurer le bouton du script automatique (auto-clicker)
 function setupAutoclicButton() {
   btnAutoclicScript.textContent = `J'achète un script auto-clic (300 PM)`;
   btnAutoclicScript.classList.add("click-button");
@@ -240,6 +274,83 @@ function startautoclick() {
       displayUpdate();
     }, 1000); // Clique toutes les secondes (1000ms)
   }
+}
+
+//* Fonction pour appliquer un malus chargé depuis le JSON
+function applyMalus(malusID) {
+  const malus = loadedMalusData.find((malus) => malus.id === malusID);
+  if (!malus) {
+    console.error(`Malus avec l'ID ${malusID} non trouvé !`);
+    return;
+  }
+
+  // Affiche la description du malus
+  updateInformations(malus.description);
+
+  switch (malus.type) {
+    case "multiply":
+      originalPmPerClick = pmPerClick;
+      pmPerClick *= malus.value;
+      setTimeout(() => {
+        pmPerClick = originalPmPerClick;
+        updateInformations(malus.onEndMessage);
+        displayUpdate();
+      }, malus.durationMs);
+      break;
+
+    case "disable_clicks":
+      disableClics(true);
+      setTimeout(() => {
+        disableClics(false);
+        updateInformations(malus.onEndMessage);
+        displayUpdate();
+      }, malus.durationMs);
+      break;
+
+    case "clicks_blocked_count":
+      originalPmPerClick = pmPerClick;
+      pmPerClick = malus.valus;
+      clicksRemainingForMalus = malus.clicksCount;
+      break;
+
+    case "multipliers_combined":
+      originalPmPerClick = pmPerClick;
+      originalPassiveBonusPR = prPerSec;
+      malus.effects.forEach((effect) => {
+        if (effect.target === "pmPerClick") pmPerClick *= effect.value;
+        if (effect.target === "prPerSec") prPerSec *= effect.value;
+      });
+      setTimeout(() => {
+        pmPerClick = originalPmPerClick;
+        prPerSec = originalPassiveBonusPR;
+        updateInformations(malus.onEndMessage);
+        displayUpdate();
+      }, malus.durationMs);
+      break;
+
+    case "fixed_loss_and_block":
+      if (malus.prLoss) {
+        social = Math.max(0, social - malus.prLoss); // pour que social ne soit pas < 0
+      }
+      originalPmPerClick = pmPerClick;
+      originalPassiveBonusPR = prPerSec;
+      malus.blockTarget.forEach((target) => {
+        if (target === "pmPerClick") pmPerClick = 0;
+        if (target === "prPerSec") prPerSec = 0;
+      });
+      setTimeout(() => {
+        pmPerClick = originalPmPerClick;
+        prPerSec = originalPassiveBonusPR;
+        updateInformations(malus.onEndMessage);
+        displayUpdate();
+      }, malus.durationMs);
+      break;
+
+    default:
+      console.warn(`type de malus inconnu : ${malus.type}`);
+      break;
+  }
+  displayUpdate();
 }
 
 // Variables pour suivre si la boutique et le bouton autoclic ont déjà été affichés/créés
@@ -303,8 +414,7 @@ function updateInformations(message) {
 }
 
 // Bouton Job Clicker
-const addPmPerClick = document.getElementById("btnAddPM"); // bouton "Je postule !"
-addPmPerClick.addEventListener("click", () => jobClicker());
+mainClickButton.addEventListener("click", () => jobClicker());
 
 // Active l'inscription au truc du travail
 AdminActiveBtn.addEventListener("click", () => TTJactivated());
@@ -312,7 +422,28 @@ AdminActiveBtn.addEventListener("click", () => TTJactivated());
 // Active le réseau social
 socialActivationBtn.addEventListener("click", () => createSocialNetwork());
 
-// --- Initialisation au chargement du DOM ---
+// Variable pour stocker les malus chargé sous forme d'un tableau (viennent de malus.json)
+let loadedMalusData = [];
+
+//* Fonction pour charger les malus
+async function loadMalusData() {
+  try {
+    const response = await fetch("malus.json");
+    // Vérifier si la requête a réussi (status 200 OK)
+    if (!response.ok)
+      throw new Error(
+        `Erreur de chargement des malus: ${response.status} ${response.statusText}`
+      );
+
+    loadedMalusData = await response.json();
+    console.log("Malus chargés avec succès :", loadedMalusData); // pour dire quel malus est chargé
+  } catch (error) {
+    console.log("Erreur lors du chargement des malus : ", error);
+    updateInformations("Erreur de chargement des malus du jeu : 😱");
+  }
+}
+
+//* --- Initialisation au chargement du DOM ---
 document.addEventListener("DOMContentLoaded", () => {
   displayUpdate(); // Appel initial pour s'assurer que les scores sont à jour
   socialActivationBtn.innerHTML = `J'active mon réseau </br> (${socialCost} PM)`;
@@ -320,6 +451,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (shoppingListSection) {
     shoppingListSection.style.display = "none";
   }
+
+  // Charger les malus
+  loadMalusData();
+
   // Assure-toi que les éléments de la boutique sont aussi cachés par défaut si besoin
   if (document.getElementById("clicScript"))
     document.getElementById("clicScript").style.display = "none";
