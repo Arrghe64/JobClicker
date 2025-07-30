@@ -79,33 +79,41 @@ function TTJactivated() {
 let socialActiveted = false;
 //* Activation du réseau social
 function activateSocial() {
-  socialActiveted = true;
+  if (!jobadminRegistration) {
+    return;
+  } else {
+    socialActiveted = true;
+  }
 }
 
 let socialnetButtonsCreated = false;
 //* Céer les boutons du réseau social
 function createSocialNetwork() {
+  if (socialnetButtonsCreated) return;
   socialnetButtonsCreated = true;
+  activateSocial();
+  
 }
 
+// Déclaration globale du bouton autoclic
 const btnAutoclicScript = document.createElement("button");
 let shoppingClickScript = false; // script automatique
 
-//* Créer le bouton du script automatique
+//* Créer et configurer le bouton du script automatique
 function setupAutoclicButton() {
-  btnAutoclicScript.textContent = `J'achète un script auto-clic (500 PM)`;
+  btnAutoclicScript.textContent = `J'achète un script auto-clic (300 PM)`;
   btnAutoclicScript.classList.add("click-button");
   btnAutoclicScript.style.backgroundColor = "#ff7b00";
 
   btnAutoclicScript.addEventListener("click", () => {
     if (motivation >= 300) {
       motivation -= 300;
-      shoppingClickScript = true;
+      shoppingClickScript = true; // Active le flag de l'autoclic
       updateInformations("Clic automatique activé ! 🤖");
+      startautoclick(); // Démarre le clic automatique
+      btnAutoclicScript.disabled = true; // Désactive le bouton
+      btnAutoclicScript.textContent = "Clic automatique (Activé)"; // Change le texte du bouton
       displayUpdate();
-      startautoclick(); // Fonction pour démarrer le clic automatique
-      btnAutoclicScript.disabled = true;
-      btnAutoclicScript.textContent = "Clic automatique (Activé)";
     } else {
       updateInformations(
         "Pas assez de motivation pour activer le script auto-clic !"
@@ -117,53 +125,74 @@ function setupAutoclicButton() {
 //* Fonction de démarrage de l'auto-clic
 let autoclickInterval;
 function startautoclick() {
+  // S'assure que l'intervalle n'est démarré qu'une fois
   if (!autoclickInterval) {
     autoclickInterval = setInterval(() => {
-      motivation += 1;
+      motivation += 1; // Tu peux ajuster le gain ici
       displayUpdate();
-    }, 1000);
+    }, 1000); // Clique toutes les secondes (1000ms)
   }
 }
 
 // Variables pour suivre si la boutique et le bouton autoclic ont déjà été affichés/créés
 let shopDisplayed = false;
-let autoclickBtnConfigured = false;
+let autoclickBtnConfigured = false; // Cette variable doit passer à true après la conf et l'ajout
 
 // Eléments du DOM à afficher
 const PMdisplay = document.getElementById("scorePM"); // score PM
 const PRdisplay = document.getElementById("scorePR"); // score PR
-const PMlevel = document.getElementById("levelPM"); // niveau (x le nbr de PM par clic)
-const AdminActiveBtn = document.getElementById("btnJobAgencyRegistration");
-const socialActivationBtn = document.getElementById("btnSocialActivation");
-const shoppingListSection = document.querySelector(".shopping-list");
+const PMlevelDisplay = document.getElementById("levelPM"); // niveau (x le nbr de PM par clic)
+const AdminActiveBtn = document.getElementById("btnJobAgencyRegistration"); // bouton Trouve Ton Job
+const socialActivationBtn = document.getElementById("btnSocialActivation"); // bouton pour activer les réseaux
+const shoppingListSection = document.querySelector(".shopping-list"); // affichage de la boutique
+const clicScriptP = document.getElementById("clicScript"); // affichage de la disponibilité de l'autoclic
 
 //* Mise à jour de l'affichage
 function displayUpdate() {
   // Mise à jour des différents points, niveaux
   PMdisplay.textContent = motivation.toFixed(); // Maj des PM
   PRdisplay.textContent = social.toFixed(); // Maj des PR
-  PMlevel.textContent = Math.floor(pmPerClick); // Maj du niveau de PM
+  PMlevelDisplay.textContent = Math.floor(pmPerClick); // Maj du niveau de PM
 
   // --- Gestion de l'affichage BOUTIQUE ---
-  if (motivation >= 200 && pmPerClick >= 10 && !shopDisplayed) {
+  if (motivation >= 200 && !shopDisplayed) {
     if (shoppingListSection) {
       shoppingListSection.style.display = "block";
-      document.getElementById("clicScript").style.display = "block";
       shopDisplayed = true; // Pour marquer la boutique comme "Affichée"
-
-      // --- Configurer et ajouter le bouton autoclic si ce n'est pas fait ---
-      if (!autoclickBtnConfigured) {
-        setupAutoclicButton(); // Appel de la fonction d'autoclic
-        betterMotivSection.appendChild(btnAutoclicScript); // Ajout du bouton d'auto-script
-      }
     }
+    if (clicScriptP) clicScriptP.style.display = "block";
+    betterMotivSection.appendChild(btnAutoclicScript); // ajoute le bouton au DOM
+  }
+
+  // --- Affichage et ajout du bouton autoclic à 300 PM
+  if (motivation >= 300 && !autoclickBtnConfigured) {
+    if (clicScriptP) clicScriptP.style.display = "block";
+    setupAutoclicButton(); // configure le bouton
+    autoclickBtnConfigured = true; // marque le bouton comme configuré et ajouté
+  }
+
+  // Affichage des autres éléments
+  if (motivation >= 500) {
+    const formationP = document.getElementById("formation");
+    formationP.style.display = "block";
+  }
+  if (motivation >= 750) {
+    const webinaireP = document.getElementById("webinaire");
+    webinaireP.style.display = "block";
+  }
+  if (motivation >= 1000) {
+    const certificationP = document.getElementById("certification");
+    certificationP.style.display = "block";
   }
 }
 
 //* Centraliser les messages
 function updateInformations(message) {
-  document.querySelector(".informations").textContent = message;
-  message.classList.add("informations");
+  const infoDisplayElement = document.querySelector(".informations");
+  if (infoDisplayElement) {
+    infoDisplayElement.textContent = message;
+    infoDisplayElement.classList.add("informations");
+  }
 }
 
 // Bouton Job Clicker
@@ -175,3 +204,21 @@ AdminActiveBtn.addEventListener("click", () => TTJactivated());
 
 // Active le réseau social
 socialActivationBtn.addEventListener("click", () => createSocialNetwork());
+
+// --- Initialisation au chargement du DOM ---
+document.addEventListener("DOMContentLoaded", () => {
+  displayUpdate(); // Appel initial pour s'assurer que les scores sont à jour
+  // Cache la boutique au démarrage
+  if (shoppingListSection) {
+    shoppingListSection.style.display = "none";
+  }
+  // Assure-toi que les éléments de la boutique sont aussi cachés par défaut si besoin
+  if (document.getElementById("clicScript"))
+    document.getElementById("clicScript").style.display = "none";
+  if (document.getElementById("formation"))
+    document.getElementById("formation").style.display = "none";
+  if (document.getElementById("webinaire"))
+    document.getElementById("webinaire").style.display = "none";
+  if (document.getElementById("certification"))
+    document.getElementById("certification").style.display = "none";
+});
