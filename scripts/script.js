@@ -1,18 +1,21 @@
 //***** LES VARIABLES GLOBALES *****//
 // --- Coût en PM ou PR pour activer un bonus ---
-const autoclickCost = 300; //! PM pour activer l'autoclic : 300
-const socialCost = 100; //! PM pour activer le réseau : 100
-const commentPostCost = 300; //! PM pour commenter un post : 300
-const publishPostCost = 75; //! PR pour publier un post : 75
+const autoclickCost = 300; // PM pour activer l'autoclic : 300
+const socialCost = 100; // PM pour activer le réseau : 100
+const commentPostCost = 300; // PM pour commenter un post : 300
+const publishPostCost = 75; // PR pour publier un post : 75
 
+// --- Variables principales ---
 let motivation = 0;
 let pmPerClick = 1;
 let social = 0;
 let prPerClick = 0;
-let autoClickerGain = 1; //! ou pmPerClick (nombre de PM par clic, donne le niveau de motivation)
+let autoClickerGain = 1; // ou pmPerClick (nombre de PM par clic, donne le niveau de motivation)
 let passiveBonusPR = 0;
 let malusActif = false; // Activation d'un malus
 let prPerSec = 0; // Nombre de PR par secondes
+const defaultMessage =
+  "post, postER, posTALE, 😕 poSTICHE, 😠 pOSTURE, POSTULE";
 
 // --- Varibles correspondant aux différents bugs ---
 let isClickingEnable = true; // Pour le malus "Bug sur le site"
@@ -20,17 +23,26 @@ let clicksRemainingForMalus = 0; // Pour le malus "offre sans réponse"
 let originalPmPerClick = 0; // Pour stocker les PM avant malus
 let originalPassiveBonusPR = 0; // Pour stocker les PR avant malus
 
+// --- Variables pour suivre les activations, affichages et créations ---
+let shopDisplayed = false;
+let autoclickBtnConfigured = false; // Cette variable doit passer à true après la conf et l'ajout
+let jobadminRegistration = false; // activation de l'inscription à TTJ
+let motivationBtnCreated = false; // activation des boutons réseau
+
+// --- Eléments du DOM ---
+const PMdisplay = document.getElementById("scorePM"); // score PM
+const PRdisplay = document.getElementById("scorePR"); // score PR
+const PMlevelDisplay = document.getElementById("levelPM"); // niveau (x le nbr de PM par clic)
+const AdminActiveBtn = document.getElementById("btnJobAgencyRegistration"); // bouton Trouve Ton Job
+const shoppingListSection = document.querySelector(".shopping-list"); // affichage de la boutique
+const clicScriptP = document.getElementById("clicScript"); // affichage de la disponibilité de l'autoclic
+const betterMotivSection = document.getElementById("betterMotivationSection"); // section motivation
+const betterSocialSection = document.getElementById("betterSocialSection"); // section affichage réseau
 const mainClickButton = document.getElementById("btnAddPM"); // bouton "Je postule !"
-//* Fonction pour désactiver/activer les clics sur le bouton principal
-function disableClics(disable) {
-  if (mainClickButton) {
-    mainClickButton.disable = disable;
-  }
-}
 
 //* Clic principal >>> +1 PM à chaque clic au début
 function jobClicker() {
-  if (!isClickingEnable) {
+  if (malusActif) {
     updateInformations("Tu ne peux pas cliquer pour l'instant ! ⛔");
     return;
   }
@@ -53,10 +65,124 @@ function jobClicker() {
   displayUpdate();
 }
 
-let jobadminRegistration = false;
-let motivationBtnCreated = false; // activation des boutons réseau
-const betterMotivSection = document.getElementById("betterMotivationSection"); // section motivation
-const betterSocialSection = document.getElementById("betterSocialSection"); // section affichage réseau
+//* Fonction pour désactiver/activer les clics sur le bouton principal
+function disableAllInteractions(disable) {
+  malusActif = disable; // Met à jour l'état global du malus
+
+  // Sélectionne tous les éléments interactifs du jeu
+  const interactiveElements = document.querySelectorAll(
+    "button, a.action-button, a.shop-btn" // Ajoute ici toutes les balises/classes de tes éléments cliquables
+  );
+
+  interactiveElements.forEach((element) => {
+    element.disabled = disable; // Désactive ou active le bouton
+    if (disable) {
+      element.style.pointerEvents = "none"; // Empêche les événements de souris
+      element.style.opacity = "0.7"; // Indique visuellement que c'est désactivé
+      element.style.cursor = "not-allowed"; // Change le curseur
+    } else {
+      element.style.pointerEvents = "auto"; // Réactive les événements de souris
+      element.style.opacity = "1"; // Rétablit l'opacité normale
+      element.style.cursor = "pointer"; // Rétablit le curseur normal
+    }
+  });
+
+  // Gérer spécifiquement le clic automatique
+  if (disable) {
+    stopautoclick(); // Arrête le clic automatique
+  } else {
+    // Redémarre le clic automatique uniquement si le bonus est actif
+    if (shoppingClickScript) {
+      // shoppingClickScript est ta variable qui indique si l'autoclic a été acheté
+      startautoclick();
+    }
+  }
+}
+
+//* Centraliser les messages
+function updateInformations(message) {
+  const infoDisplayElement = document.querySelector(".informations");
+  if (infoDisplayElement) {
+    infoDisplayElement.textContent = message;
+  }
+}
+
+//* Mise à jour de l'affichage
+function displayUpdate() {
+  // Mise à jour des différents points, niveaux
+  PMdisplay.textContent = motivation.toFixed(); // Maj des PM
+  PRdisplay.textContent = social.toFixed(); // Maj des PR
+  PMlevelDisplay.textContent = Math.floor(pmPerClick); // Maj du niveau de PM
+
+  // --- Gestion de l'affichage BOUTIQUE ---
+  if (motivation >= 200 && !shopDisplayed) {
+    if (shoppingListSection) {
+      shoppingListSection.style.display = "block";
+      shopDisplayed = true; // Pour marquer la boutique comme "Affichée"
+    }
+    if (clicScriptP) clicScriptP.style.display = "block";
+    betterMotivSection.appendChild(btnAutoclicScript); // ajoute le bouton au DOM
+  }
+
+  // --- Affichage et ajout du bouton autoclic à 300 PM
+  if (motivation >= 300 && !autoclickBtnConfigured) {
+    if (clicScriptP) clicScriptP.style.display = "block";
+    setupAutoclicButton(); // configure le bouton
+    autoclickBtnConfigured = true; // marque le bouton comme configuré et ajouté
+  }
+
+  // Affichage des autres éléments
+  if (motivation >= 500) {
+    const formationP = document.getElementById("formation");
+    formationP.style.display = "block";
+  }
+  if (motivation >= 750) {
+    const webinaireP = document.getElementById("webinaire");
+    webinaireP.style.display = "block";
+  }
+  if (motivation >= 1000) {
+    const certificationP = document.getElementById("certification");
+    certificationP.style.display = "block";
+  }
+}
+
+//* Fonction pour gérer les effets passifs temporaires
+function startPassiveEfects({ duration, interval, effect, onEnd }) {
+  const effectInterval = setInterval(effect, interval);
+  setTimeout(() => {
+    clearInterval(effectInterval);
+    if (onEnd) onEnd();
+  }, duration);
+}
+
+//* Lancer la possibilité de publier un post régulièrement
+setInterval(() => {
+  if (passiveBonusPR > 0) {
+    social += passiveBonusPR;
+    displayUpdate();
+  }
+}, 30000);
+
+//* Fonction de démarrage de l'auto-clic
+let autoclickInterval = null;
+function startautoclick() {
+  // S'assure que l'intervalle n'est démarré qu'une fois
+  if (!autoclickInterval) {
+    autoclickInterval = setInterval(() => {
+      if (!malusActif) {
+        motivation += autoClickerGain;
+        displayUpdate();
+      }
+    }, 1000); // Clique toutes les secondes (1000ms)
+  }
+}
+
+function stopautoclick() {
+  if (autoclickInterval) {
+    clearInterval(autoclickInterval);
+    autoclickInterval = null;
+  }
+}
 
 //* Inscription à Touve-Ton-Job
 function TTJactivated() {
@@ -219,30 +345,13 @@ function createSocialNetwork() {
   displayUpdate();
 }
 
-//* Fonction pour gérer les effets passifs temporaires
-function startPassiveEfects({ duration, interval, effect, onEnd }) {
-  const effectInterval = setInterval(effect, interval);
-  setTimeout(() => {
-    clearInterval(effectInterval);
-    if (onEnd) onEnd();
-  }, duration);
-}
-
-//* Lancer la possibilité de publier un post régulièrement
-setInterval(() => {
-  if (passiveBonusPR > 0) {
-    social += passiveBonusPR;
-    displayUpdate();
-  }
-}, 30000);
-
 // Déclaration globale du bouton autoclic
 const btnAutoclicScript = document.createElement("button");
 let shoppingClickScript = false; // script automatique
 
 //* Créer et configurer le bouton du script automatique (auto-clicker)
 function setupAutoclicButton() {
-  btnAutoclicScript.textContent = `J'achète un script auto-clic (300 PM)`;
+  btnAutoclicScript.textContent = `J'achète un script auto-clic (${autoclickCost} PM)`;
   btnAutoclicScript.classList.add("click-button");
   btnAutoclicScript.style.backgroundColor = "#ffa500";
 
@@ -264,44 +373,40 @@ function setupAutoclicButton() {
   });
 }
 
-//* Fonction de démarrage de l'auto-clic
-let autoclickInterval;
-function startautoclick() {
-  // S'assure que l'intervalle n'est démarré qu'une fois
-  if (!autoclickInterval) {
-    autoclickInterval = setInterval(() => {
-      motivation += autoClickerGain;
-      displayUpdate();
-    }, 1000); // Clique toutes les secondes (1000ms)
-  }
-}
-
 //* Fonction pour appliquer un malus chargé depuis le JSON
 function applyMalus(malusID) {
-  const malus = loadedMalusData.find((malus) => malus.id === malusID);
+  const malus = loadedMalusData.find((m) => m.id === malusID);
   if (!malus) {
     console.error(`Malus avec l'ID ${malusID} non trouvé !`);
     return;
   }
+  console.log(`Malus avec l'ID ${malusID} a été trouvé`);
 
   // Affiche la description du malus
   updateInformations(malus.description);
 
   switch (malus.type) {
-    case "multiply":
-      originalPmPerClick = pmPerClick;
-      pmPerClick *= malus.value;
-      setTimeout(() => {
-        pmPerClick = originalPmPerClick;
-        updateInformations(malus.onEndMessage);
+    case "temporary_resource_loss":
+      if (malus.target === "motivation") {
+        motivation = Math.max(0, motivation * (1 - malus.value));
+        updateInformations(malus.description);
         displayUpdate();
-      }, malus.durationMs);
+        setTimeout(() => {
+          if (!jobadminRegistration) {
+            updateInformations(
+              "Inscris toi à TROUVE TON JOB pour débloquer les bonus"
+            );
+          } else {
+            updateInformations(defaultMessage);
+          }
+        }, 5000);
+      }
       break;
 
     case "disable_clicks":
-      disableClics(true);
+      disableAllInteractions(true);
       setTimeout(() => {
-        disableClics(false);
+        disableAllInteractions(false);
         updateInformations(malus.onEndMessage);
         displayUpdate();
       }, malus.durationMs);
@@ -353,71 +458,19 @@ function applyMalus(malusID) {
   displayUpdate();
 }
 
-// Variables pour suivre si la boutique et le bouton autoclic ont déjà été affichés/créés
-let shopDisplayed = false;
-let autoclickBtnConfigured = false; // Cette variable doit passer à true après la conf et l'ajout
-
-// Eléments du DOM à afficher
-const PMdisplay = document.getElementById("scorePM"); // score PM
-const PRdisplay = document.getElementById("scorePR"); // score PR
-const PMlevelDisplay = document.getElementById("levelPM"); // niveau (x le nbr de PM par clic)
-const AdminActiveBtn = document.getElementById("btnJobAgencyRegistration"); // bouton Trouve Ton Job
-const shoppingListSection = document.querySelector(".shopping-list"); // affichage de la boutique
-const clicScriptP = document.getElementById("clicScript"); // affichage de la disponibilité de l'autoclic
-
-//* Mise à jour de l'affichage
-function displayUpdate() {
-  // Mise à jour des différents points, niveaux
-  PMdisplay.textContent = motivation.toFixed(); // Maj des PM
-  PRdisplay.textContent = social.toFixed(); // Maj des PR
-  PMlevelDisplay.textContent = Math.floor(pmPerClick); // Maj du niveau de PM
-
-  // --- Gestion de l'affichage BOUTIQUE ---
-  if (motivation >= 200 && !shopDisplayed) {
-    if (shoppingListSection) {
-      shoppingListSection.style.display = "block";
-      shopDisplayed = true; // Pour marquer la boutique comme "Affichée"
-    }
-    if (clicScriptP) clicScriptP.style.display = "block";
-    betterMotivSection.appendChild(btnAutoclicScript); // ajoute le bouton au DOM
-  }
-
-  // --- Affichage et ajout du bouton autoclic à 300 PM
-  if (motivation >= 300 && !autoclickBtnConfigured) {
-    if (clicScriptP) clicScriptP.style.display = "block";
-    setupAutoclicButton(); // configure le bouton
-    autoclickBtnConfigured = true; // marque le bouton comme configuré et ajouté
-  }
-
-  // Affichage des autres éléments
-  if (motivation >= 500) {
-    const formationP = document.getElementById("formation");
-    formationP.style.display = "block";
-  }
-  if (motivation >= 750) {
-    const webinaireP = document.getElementById("webinaire");
-    webinaireP.style.display = "block";
-  }
-  if (motivation >= 1000) {
-    const certificationP = document.getElementById("certification");
-    certificationP.style.display = "block";
-  }
-}
-
-//* Centraliser les messages
-function updateInformations(message) {
-  const infoDisplayElement = document.querySelector(".informations");
-  if (infoDisplayElement) {
-    infoDisplayElement.textContent = message;
-    infoDisplayElement.classList.add("informations");
-  }
+//* Fonction pour tirer un malus au hasard
+function triggerRandomMalus() {
+  if (malusActif) return;
 }
 
 // Bouton Job Clicker
 mainClickButton.addEventListener("click", () => jobClicker());
 
 // Active l'inscription au truc du travail
-AdminActiveBtn.addEventListener("click", () => TTJactivated());
+AdminActiveBtn.addEventListener("click", () => {
+  TTJactivated();
+  updateInformations("Super t'es dans le système ! 📉");
+});
 
 // Active le réseau social
 socialActivationBtn.addEventListener("click", () => createSocialNetwork());
@@ -428,7 +481,7 @@ let loadedMalusData = [];
 //* Fonction pour charger les malus
 async function loadMalusData() {
   try {
-    const response = await fetch("malus.json");
+    const response = await fetch("scripts/malus.json");
     // Vérifier si la requête a réussi (status 200 OK)
     if (!response.ok)
       throw new Error(
@@ -455,7 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Charger les malus
   loadMalusData();
 
-  // Assure-toi que les éléments de la boutique sont aussi cachés par défaut si besoin
+  // S'assurer que les éléments de la boutique sont cachés par défaut
   if (document.getElementById("clicScript"))
     document.getElementById("clicScript").style.display = "none";
   if (document.getElementById("formation"))
@@ -464,4 +517,17 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("webinaire").style.display = "none";
   if (document.getElementById("certification"))
     document.getElementById("certification").style.display = "none";
+
+  // Ajouter un bouton temporaire pour tester les malus
+  const testMalusBtn = document.createElement("button");
+  testMalusBtn.textContent = "Déclencher Malus Test";
+  testMalusBtn.addEventListener("click", () => {
+    // Choisis un malus à déclencher pour tester
+    // applyMalus("justificatif_demande");
+    // applyMalus("bug_site");
+    applyMalus("offre_sans_reponse");
+    // applyMalus("refus_automatique");
+    // applyMalus("annonce_fake");
+  });
+  document.body.appendChild(testMalusBtn);
 });

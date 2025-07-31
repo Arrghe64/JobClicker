@@ -2,12 +2,10 @@
   {
     "id": "justificatif_demande",
     "name": "Justificatif demandé par Trouve Ton Job",
-    "description": "Trouve Ton Job t’a demandé un justificatif 😩",
-    "type": "multiply",
-    "target": "pmPerClick",
-    "value": 0.8,
-    "durationMs": 15000,
-    "onEndMessage": "Tu as fourni le justificatif. Tout redevient normal !"
+    "description": "Trouve Ton Job t’a demandé un justificatif ! Tu perds 20% de motivation 😩",
+    "type": "temporary_resource_loss",
+    "target": "motivation",
+    "value": 0.20
   },
   {
     "id": "bug_site",
@@ -24,7 +22,7 @@
     "type": "clicks_blocked_count",
     "target": "pmPerClick",
     "value": 0,
-    "clicksCount": 5,
+    "clicksCount": 10,
     "onEndMessage": "Tu reprends confiance, les gains de PM reviennent !"
   },
   {

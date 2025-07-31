@@ -1,12 +1,13 @@
 * {
    padding: 0;
    margin: 0;
-   /* box-sizing: border-box; */
+   box-sizing: border-box;
 }
 body {
    height: 100vh;
    font-family: Verdana, Geneva, Tahoma, sans-serif;
    text-align: center;
+   background-color: #fafafa;
 }
 .header {
    padding-top: 30px;
