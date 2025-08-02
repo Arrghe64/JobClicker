@@ -3,7 +3,7 @@
     "id": "justificatif_demande",
     "name": "Justificatif demandé par Trouve Ton Job",
     "description": "Trouve Ton Job t’a demandé un justificatif ! Tu perds 20% de motivation 😩",
-    "type": "temporary_resource_loss",
+    "type": "resource_loss",
     "target": "motivation",
     "value": 0.20
   },
@@ -12,39 +12,39 @@
     "name": "BUG sur le site",
     "description": "Bug sur le site de Trouve Ton Job... tu ne peux plus cliquer ! 🐞",
     "type": "disable_clicks",
-    "durationMs": 10000,
+    "durationMs": 15000,
     "onEndMessage": "Le bug est résolu, tu peux recommencer à cliquer !"
   },
   {
     "id": "offre_sans_reponse",
     "name": "Offre sans réponse",
-    "description": "Aucune réponse... 😕 (PM bloqués)",
+    "description": "Aucune réponse... 😕 (PM bloqués pendant 10 clics)",
     "type": "clicks_blocked_count",
     "target": "pmPerClick",
     "value": 0,
     "clicksCount": 10,
+    "durationMs": 30000,
     "onEndMessage": "Tu reprends confiance, les gains de PM reviennent !"
-  },
-  {
-    "id": "refus_automatique",
-    "name": "Refus automatique",
-    "description": "Refus automatique 💔 (-10% sur les gains)",
-    "type": "multipliers_combined",
-    "effects": [
-      { "target": "pmPerClick", "value": 0.9 },
-      { "target": "passiveBonusPR", "value": 0.9 }
-    ],
-    "durationMs": 20000,
-    "onEndMessage": "Tu reprends confiance après le refus."
   },
   {
     "id": "annonce_fake",
     "name": "Annonce 'fake'",
-    "description": "Arnaque ! 😠 Tu as perdu 50 PR et plus de PM temporairement.",
-    "type": "fixed_loss_and_block",
+    "description": "Arnaque ! 😠 Tu as perdu 50% des PM et 50% des PM.",
+    "type": "multipliers_combined",
+    "effects": [
+      { "target": "motivation", "value": 0.5 },
+      { "target": "social", "value": 0.5 },
+      { "target": "autoClickerGain"}
+    ],
+    "durationMs": 20000,
+    "onEndMessage": "😥 . Gagne des points pour débloquer un script anti-malus !"
+  },
+  {
+    "id": "refus_automatique",
+    "name": "Refus automatique",
+    "description": "Refus automatique 💔 (-50 PR et -50% du Niveau de motivation)",
     "prLoss": 50,
-    "blockTargets": ["pmPerClick", "passiveBonusPR"],
-    "durationMs": 10000,
-    "onEndMessage": "Tu es vigilant·e désormais. Gains rétablis."
+    "pmPerClickMalus": 0.5,
+    "onEndMessage": "Tu reprends confiance après le refus."
   }
 ]
