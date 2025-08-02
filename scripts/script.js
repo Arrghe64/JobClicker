@@ -1,32 +1,26 @@
 //***** LES VARIABLES GLOBALES *****//
 // --- Coût en PM ou PR pour activer un bonus ---
-const autoclickCost = 300; //! PM pour activer l'autoclic : 300
-const socialCost = 100; //! PM pour activer le réseau : 100
-const commentPostCost = 300; //! PM pour commenter un post : 300
-const publishPostCost = 75; //! PR pour publier un post : 75
-const bestCvCost = 20; //! PM pour améliorer le CV : 20
-const bestMlCost = 50; //! PM pour améliorer la LM : 50
+const autoclickCost = 300; //' PM pour activer l'autoclic : 300
+const socialCost = 100; //' PM pour activer le réseau : 100
+const commentPostCost = 300; //' PM pour commenter un post : 300
+const publishPostCost = 75; //' PR pour publier un post : 75
+const bestCvCost = 20; //' PM pour améliorer le CV : 20
+const bestMlCost = 50; //' PM pour améliorer la LM : 50
 
 // --- Variables principales ---
 let motivation = 0;
 let pmPerClick = 1; // nb de pts/clic >>> donne le niveau de motivation
 let social = 0;
-let prPerClick = 0; //'
 let autoClickerGain = 1; // ou pmPerClick (nombre de PM par clic, donne le niveau de motivation)
 let passiveBonusPR = 0;
 let malusActif = false; // Activation d'un malus
-let prPerSec = 0; // Nombre de PR par secondes
 const defaultMessage =
   "post, postER, posTALE, 😕 poSTICHE, 😠 pOSTURE, POSTULE";
 
 // --- Varibles correspondant aux différents bugs ---
-let isClickingEnable = true; // Pour le malus "Bug sur le site"
 let clicksRemainingForMalus = 0; // Pour le malus "offre sans réponse"
-let malusIntervalId = null;
-const requiredPMForMalus = 150; //! 150
+const requiredPMForMalus = 150; //' 150
 let originalPmPerClick = 0; // Pour stocker les PM avant malus
-let originalPassiveBonusPR = 0; // Pour stocker les PR avant malus
-let originalAutoClickerGain = 0; // Pour stocker l'autolick
 
 // --- Variables pour suivre les activations, affichages et créations ---
 let shopDisplayed = false;
