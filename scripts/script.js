@@ -2,11 +2,15 @@
 //#region Variables
 // --- Coût en PM ou PR pour activer un bonus ---
 const autoclickCost = 300; //' PM pour activer l'autoclic : 300
-const socialCost = 10; //' PM pour activer le réseau : 100
-const commentPostCost = 30; //' PM pour commenter un post : 300
-const publishPostCost = 18; //' PR pour publier un post : 75
+const socialCost = 100; //' PM pour activer le réseau : 100
+const commentPostCost = 300; //' PM pour commenter un post : 300
+const publishPostCost = 75; //' PR pour publier un post : 75
 const bestCvCost = 20; //' PM pour améliorer le CV : 20
 const bestMlCost = 50; //' PM pour améliorer la LM : 50
+const proEmailCost = 350; //' acheter un mail pro : 350
+const courseOnlineCost = 0;
+const webinarCoest = 0;
+const certificationCost = 0;
 
 // --- Variables principales ---
 let motivation = 0;
@@ -24,10 +28,14 @@ const requiredPMForMalus = 150; //' 150
 let originalPmPerClick = 0; // Pour stocker les PM avant malus
 
 // --- Variables pour suivre les activations, affichages et créations ---
-let shopDisplayed = false;
-let autoclickBtnConfigured = false; // Cette variable doit passer à true après la conf et l'ajout
 let jobadminRegistration = false; // activation de l'inscription à TTJ
 let motivationBtnCreated = false; // activation des boutons réseau
+let shopDisplayed = false;
+let autoclickBtnConfigured = false; // btn achat auto-script créé (true)
+let proEmailBtnConfigured = false; // btn achat Email pro créé (true)
+let courseOnlineBtnConfigured = false; // btn achat cours en ligne créé (true)
+let webinarBtnConfigured = false; // btn achat webinaire créé (true)
+let certificationBtnConfigured = false; // btn achat formation certifiante créé (true)
 
 // --- Eléments du DOM ---
 const PMdisplay = document.getElementById("scorePM"); // score PM
@@ -122,31 +130,45 @@ function displayUpdate() {
       shopDisplayed = true; // Pour marquer la boutique comme "Affichée"
     }
     if (clicScriptP) clicScriptP.style.display = "block";
-    betterMotivSection.appendChild(btnAutoclicScript); // ajoute le bouton au DOM
+
+    // ajoute les boutons au DOM
+    betterMotivSection.appendChild(btnAutoclicScript);
+    betterMotivSection.appendChild(btnProfessionalEmail);
+  }
+
+  //-> mail professionnel
+  if (motivation >= 300 && !proEmailBtnConfigured) {
+    const proEmailP = document.createElement("p");
+    proEmailP.textContent = `Créer un mail pro à ${proEmailCost} PM`;
+    shoppingListSection.appendChild(proEmailP);
+    setupProfessionalMail(); // configure le bouton
+    proEmailBtnConfigured = true; // btn ajouté
   }
 
   // --- Affichage et ajout du bouton autoclic à 300 PM
-  if (motivation >= 300 && !autoclickBtnConfigured) {
+  if (motivation >= 250 && !autoclickBtnConfigured) {
     if (clicScriptP) clicScriptP.style.display = "block";
     setupAutoclicButton(); // configure le bouton
-    autoclickBtnConfigured = true; // marque le bouton comme configuré et ajouté
+    autoclickBtnConfigured = true; // btn ajouté
   }
+  //
 
   // Affichage des autres éléments
-  if (motivation >= 500) {
-    const formationP = document.getElementById("formation");
-    formationP.style.display = "block";
-  }
-  if (motivation >= 750) {
-    const webinaireP = document.getElementById("webinaire");
-    webinaireP.style.display = "block";
-  }
-  if (motivation >= 1000) {
-    const certificationP = document.getElementById("certification");
-    certificationP.style.display = "block";
-  }
-
-  // startMalusTimerIfReady();
+  // //-> cours en ligne
+  // if (motivation >= 500 && !courseOnlineBtnConfigured) {
+  //   const formationP = document.getElementById("courseOnline");
+  //   formationP.style.display = "block";
+  // }
+  // //-> webinaire motivation
+  // if (motivation >= 750 && !webinarBtnConfigured) {
+  //   const webinaireP = document.getElementById("webinaire");
+  //   webinaireP.style.display = "block";
+  // }
+  // //-> formaton certifiante
+  // if (motivation >= 1000 && !certificationBtnConfigured) {
+  //   const certificationP = document.getElementById("certification");
+  //   certificationP.style.display = "block";
+  // }
 }
 
 //* Fonction pour gérer les effets passifs temporaires
@@ -264,7 +286,7 @@ function activateSocial() {
   console.log("Réseau social activé : ", isSocialNetworkActive); //, à effacer
 }
 
-//* Céer le réseau social, les boutons et la logique
+//* Créer le réseau social, les boutons et la logique
 function createSocialNetwork() {
   // VÉRIFICATION : Est-ce que "Trouve Ton Job" est activé ?
   if (!jobadminRegistration) {
@@ -317,7 +339,7 @@ function createSocialNetwork() {
       }
     });
 
-    // Ajouter un post >>> gain +10PR/min (après on ajoute 1 aux gains PR >>> +11, +12 etc...)
+    //-> Ajouter un post >>> gain +10PR/min (après on ajoute 1 aux gains PR >>> +11, +12 etc...)
     const btnPostPublish = document.createElement("button");
     btnPostPublish.innerHTML = `Publier un post <br> (${publishPostCost} PR)`;
     btnPostPublish.classList.add("click-button");
@@ -359,13 +381,50 @@ function createSocialNetwork() {
   displayUpdate();
 }
 
-function createProfessionalMail() {}
+// Déclaration globale du bouton de création d'e-mail pro
+const btnProfessionalEmail = document.createElement("button");
+let isProEmailBought = false;
 
-function buyOnlineCourse() {}
+//* Fonction pour configurer l'e-mail pro
+function setupProfessionalMail() {
+  btnProfessionalEmail.textContent = `J'achète un Email professionnel (${proEmailCost} PM)`;
+  btnProfessionalEmail.classList.add("click-button");
+  btnProfessionalEmail.style.backgroundColor = "#90ee90";
 
-function buyWebinar() {}
+  //-> Ajouter le bouton au DOM
 
-function buyCertifiedTraining() {}
+  btnProfessionalEmail.addEventListener("click", () => {
+    if (motivation >= proEmailCost && !isProEmailBought) {
+      motivation -= proEmailCost;
+      isProEmailBought = true;
+      displayUpdate();
+
+      // Acheter l'e-mail pro
+      buyProMail();
+
+      // Modifier le bouton pour indiquer que c'est acheté
+      btnProfessionalEmail.textContent = "Email pro acheté ! 📧";
+      btnProfessionalEmail.disabled = true;
+    }
+  });
+}
+//* fonction de mise en action du mail pro >>> total des PM +10%, +10PM/min (passif)
+function buyProMail() {
+  setInterval(() => {
+    if (isProEmailBought) {
+      motivation += 10;
+      displayUpdate();
+    }
+  }, 10000);
+  motivation *= 1.1;
+  displayUpdate();
+}
+
+function setupOnlineCourse() {}
+
+function setupWebinar() {}
+
+function setupCertifiedTraining() {}
 
 function startScriptStopMalus() {}
 
@@ -552,8 +611,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // S'assurer que les éléments de la boutique sont cachés par défaut
   if (document.getElementById("clicScript"))
     document.getElementById("clicScript").style.display = "none";
-  if (document.getElementById("formation"))
-    document.getElementById("formation").style.display = "none";
+  if (document.getElementById("courseOnline"))
+    document.getElementById("courseOnline").style.display = "none";
   if (document.getElementById("webinaire"))
     document.getElementById("webinaire").style.display = "none";
   if (document.getElementById("certification"))
