@@ -1,6 +1,6 @@
 //***** LES VARIABLES GLOBALES *****//
 //#region Variables
-// --- Coût en PM ou PR pour activer un bonus ---
+//-> --- Coût en PM ou PR pour activer un bonus ---
 const autoclickCost = 300; //' PM pour activer l'autoclic : 300
 const socialCost = 100; //' PM pour activer le réseau : 100
 const commentPostCost = 300; //' PM pour commenter un post : 300
@@ -12,7 +12,7 @@ const courseOnlineCost = 0;
 const webinarCoest = 0;
 const certificationCost = 0;
 
-// --- Variables principales ---
+//-> --- Variables principales ---
 let motivation = 0;
 let pmPerClick = 1; // nb de pts/clic >>> donne le niveau de motivation
 let social = 0;
@@ -22,12 +22,18 @@ let malusActif = false; // Activation d'un malus
 const defaultMessage =
   "post, postER, posTALE, 😕 poSTICHE, 😠 pOSTURE, POSTULE";
 
-// --- Varibles correspondant aux différents bugs ---
+//-> --- Variables pour la progression des publications
+let prPassifGain = 10; // Gain de base par minute
+let prPassifIncrement = 0.5; // L'incrément à chaque nouveau post
+let postPublishedCount = 0; // Compteur de posts publiés
+let postCooldown = false; // Booléen pour le cooldown
+
+//-> --- Varibles correspondant aux différents bugs ---
 let clicksRemainingForMalus = 0; // Pour le malus "offre sans réponse"
 const requiredPMForMalus = 150; //' 150
 let originalPmPerClick = 0; // Pour stocker les PM avant malus
 
-// --- Variables pour suivre les activations, affichages et créations ---
+//-> --- Variables pour suivre les activations, affichages et créations ---
 let jobadminRegistration = false; // activation de l'inscription à TTJ
 let motivationBtnCreated = false; // activation des boutons réseau
 let shopDisplayed = false;
@@ -37,7 +43,7 @@ let courseOnlineBtnConfigured = false; // btn achat cours en ligne créé (true)
 let webinarBtnConfigured = false; // btn achat webinaire créé (true)
 let certificationBtnConfigured = false; // btn achat formation certifiante créé (true)
 
-// --- Eléments du DOM ---
+//-> --- Eléments du DOM ---
 const PMdisplay = document.getElementById("scorePM"); // score PM
 const PRdisplay = document.getElementById("scorePR"); // score PR
 const PMlevelDisplay = document.getElementById("levelPM"); // niveau (x le nbr de PM par clic)
