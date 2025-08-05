@@ -1,9 +1,10 @@
 //***** LES VARIABLES GLOBALES *****//
+//#region Variables
 // --- Coût en PM ou PR pour activer un bonus ---
 const autoclickCost = 300; //' PM pour activer l'autoclic : 300
-const socialCost = 100; //' PM pour activer le réseau : 100
-const commentPostCost = 300; //' PM pour commenter un post : 300
-const publishPostCost = 75; //' PR pour publier un post : 75
+const socialCost = 10; //' PM pour activer le réseau : 100
+const commentPostCost = 30; //' PM pour commenter un post : 300
+const publishPostCost = 18; //' PR pour publier un post : 75
 const bestCvCost = 20; //' PM pour améliorer le CV : 20
 const bestMlCost = 50; //' PM pour améliorer la LM : 50
 
@@ -12,7 +13,7 @@ let motivation = 0;
 let pmPerClick = 1; // nb de pts/clic >>> donne le niveau de motivation
 let social = 0;
 let autoClickerGain = 1; // ou pmPerClick (nombre de PM par clic, donne le niveau de motivation)
-let passiveBonusPR = 0;
+let passiveBonusPR = 0; // total de PR gagné automatiquement
 let malusActif = false; // Activation d'un malus
 const defaultMessage =
   "post, postER, posTALE, 😕 poSTICHE, 😠 pOSTURE, POSTULE";
@@ -38,6 +39,7 @@ const clicScriptP = document.getElementById("clicScript"); // affichage de la di
 const betterMotivSection = document.getElementById("betterMotivationSection"); // section motivation
 const betterSocialSection = document.getElementById("betterSocialSection"); // section affichage réseau
 const mainClickButton = document.getElementById("btnAddPM"); // bouton "Je postule !"
+//#endregion
 
 //* Clic principal >>> +1 PM à chaque clic au début
 function jobClicker() {
@@ -160,9 +162,10 @@ function startPassiveEfects({ duration, interval, effect, onEnd }) {
 setInterval(() => {
   if (passiveBonusPR > 0) {
     social += passiveBonusPR;
+    console.log("PR qui viennent de setInterval : ", social); //, à effacer
     displayUpdate();
   }
-}, 30000);
+}, 20000);
 
 //* Fonction de démarrage de l'auto-clic
 let autoclickInterval = null;
@@ -258,7 +261,7 @@ const socialActivationBtn = document.getElementById("btnSocialActivation"); // b
 //* Activation du réseau social
 function activateSocial() {
   isSocialNetworkActive = true;
-  console.log("Réseau social activé : ", isSocialNetworkActive);
+  console.log("Réseau social activé : ", isSocialNetworkActive); //, à effacer
 }
 
 //* Céer le réseau social, les boutons et la logique
@@ -281,11 +284,11 @@ function createSocialNetwork() {
     socialActivationBtn.style.backgroundColor = "#ffa500";
     document.getElementById("socialActivated").textContent = "OUI";
 
+    // le bouton est activé, les boutons sont créés
     activateSocial();
-    // isSocialNetworkActive = true; // marquer le réseau social comme actif
-    socialnetButtonsCreated = true; // Marquer les boutons comme créés
+    socialnetButtonsCreated = true;
 
-    // --- Créer les boutons en lien avec le réseau social
+    //-> Créer les boutons en lien avec le réseau social
     // Commenter un post >>> gain = +5PR/s pendant 20s
     const btnPostComment = document.createElement("button");
     btnPostComment.textContent = `Commenter un post (${commentPostCost} PM)`;
@@ -294,6 +297,7 @@ function createSocialNetwork() {
     btnPostComment.addEventListener("click", () => {
       if (motivation >= commentPostCost) {
         motivation -= commentPostCost;
+
         startPassiveEfects({
           duration: 20000, //20s
           interval: 1000, //1s
@@ -314,13 +318,12 @@ function createSocialNetwork() {
     });
 
     // Ajouter un post >>> gain +10PR/min (après on ajoute 1 aux gains PR >>> +11, +12 etc...)
-    let postCooldown = false; // Temps entre chaque publication activé
-
     const btnPostPublish = document.createElement("button");
     btnPostPublish.innerHTML = `Publier un post <br> (${publishPostCost} PR)`;
     btnPostPublish.classList.add("click-button");
     btnPostPublish.style.backgroundColor = "#c3ff00";
 
+    let postCooldown = false; // Temps entre chaque publication activé
     btnPostPublish.addEventListener("click", () => {
       if (postCooldown) {
         updateInformations("Tu viens de publier, attends un peu ⏳");
@@ -337,7 +340,7 @@ function createSocialNetwork() {
         // Cooldown de 3 secondes
         setTimeout(() => {
           postCooldown = false;
-        }, 30000);
+        }, 3000);
       } else {
         updateInformations("Pas assez de point réseau pour publier ce post 😓");
       }
@@ -355,6 +358,18 @@ function createSocialNetwork() {
   }
   displayUpdate();
 }
+
+function createProfessionalMail() {}
+
+function buyOnlineCourse() {}
+
+function buyWebinar() {}
+
+function buyCertifiedTraining() {}
+
+function startScriptStopMalus() {}
+
+function setupStopMalusButton() {}
 
 // Déclaration globale du bouton autoclic
 const btnAutoclicScript = document.createElement("button");
@@ -508,7 +523,7 @@ function triggerRandomMalus() {
 //* setInterval qui démarre les malus
 setInterval(() => {
   if (motivation >= requiredPMForMalus) triggerRandomMalus();
-}, 30000);
+}, 60000);
 
 // Bouton Job Clicker
 mainClickButton.addEventListener("click", () => jobClicker());
@@ -543,17 +558,17 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("webinaire").style.display = "none";
   if (document.getElementById("certification"))
     document.getElementById("certification").style.display = "none";
+  if (document.getElementById("stopMalus"))
+    document.getElementById("stopMalus").style.display = "none";
 
-  // Ajouter un bouton temporaire pour tester les malus
-  // const testMalusBtn = document.createElement("button");
-  // testMalusBtn.textContent = "Déclencher Malus Test";
-  testMalusBtn.addEventListener("click", () => {
-    // Choisis un malus à déclencher pour tester
-    // applyMalus("justificatif_demande");
-    // applyMalus("bug_site");
-    // applyMalus("offre_sans_reponse");
-    // applyMalus("annonce_fake");
-    // applyMalus("refus_automatique");
-  });
-  document.body.appendChild(testMalusBtn);
+  // Ajouter un bouton temporaire pour tester les malus //, PAS MARCHE
+  // const stopMalusBtn = document.createElement("button");
+  // stopMalusBtn.textContent = "Stop les malus pendant 3min";
+  // stopMalusBtn.addEventListener("click", () => {
+  //   malusActif = true;
+  //   setTimeout(() => {
+  //     malusActif = false;
+  //   }, 30000);
+  // });
+  // document.body.appendChild(stopMalusBtn);
 });
