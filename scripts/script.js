@@ -2,9 +2,9 @@
 //#region Variables
 //-> --- Coût en PM ou PR pour activer un bonus ---
 const autoclickCost = 300; //' PM pour activer l'autoclic : 300
-const socialCost = 100; //' PM pour activer le réseau : 100
-const commentPostCost = 300; //' PM pour commenter un post : 300
-const publishPostCost = 75; //' PR pour publier un post : 75
+const socialCost = 10; //' PM pour activer le réseau : 100
+const commentPostCost = 30; //' PM pour commenter un post : 300
+const publishPostCost = 18; //' PR pour publier un post : 75
 const bestCvCost = 20; //' PM pour améliorer le CV : 20
 const bestMlCost = 50; //' PM pour améliorer la LM : 50
 const proEmailCost = 350; //' acheter un mail pro : 350
@@ -23,8 +23,6 @@ const defaultMessage =
   "post, postER, posTALE, 😕 poSTICHE, 😠 pOSTURE, POSTULE";
 
 //-> --- Variables pour la progression des publications
-let prPassifGain = 10; // Gain de base par minute
-let prPassifIncrement = 0.5; // L'incrément à chaque nouveau post
 let postPublishedCount = 0; // Compteur de posts publiés
 let postCooldown = false; // Booléen pour le cooldown
 
@@ -193,10 +191,10 @@ setInterval(() => {
     console.log("PR qui viennent de setInterval : ", social); //, à effacer
     displayUpdate();
   }
-}, 20000);
+}, 20000); //!20s à mettre à 30s ou plus
 
-//* Fonction de démarrage de l'auto-clic
 let autoclickInterval = null;
+//* Fonctions de démarrage et arrêt de l'auto-clic
 function startautoclick() {
   // S'assure que l'intervalle n'est démarré qu'une fois
   if (!autoclickInterval) {
@@ -208,7 +206,6 @@ function startautoclick() {
     }, 1000); // Clique toutes les secondes (1000ms)
   }
 }
-
 function stopautoclick() {
   if (autoclickInterval) {
     clearInterval(autoclickInterval);
@@ -350,29 +347,45 @@ function createSocialNetwork() {
     btnPostPublish.innerHTML = `Publier un post <br> (${publishPostCost} PR)`;
     btnPostPublish.classList.add("click-button");
     btnPostPublish.style.backgroundColor = "#c3ff00";
+    // Si le bouton existe on ajoute l'écouteur d'évenement (le clic)
+    if (btnPostPublish) {
+      btnPostPublish.addEventListener("click", () => {
+        if (postCooldown) {
+          updateInformations("Tu viens de publier, attends un peu ⏳");
+          return;
+        }
 
-    let postCooldown = false; // Temps entre chaque publication activé
-    btnPostPublish.addEventListener("click", () => {
-      if (postCooldown) {
-        updateInformations("Tu viens de publier, attends un peu ⏳");
-        return;
-      }
+        if (social >= publishPostCost && !postCooldown) {
+          social -= publishPostCost;
+          postPublishedCount++;
+          // passiveBonusPR += prPassifIncrement; // nouveau calcul de gain passif
+          passiveBonusPR += postPublishedCount 
 
-      if (social >= publishPostCost) {
-        social -= publishPostCost;
-        passiveBonusPR += 1; //gain passif de PR
-        postCooldown = true;
-        updateInformations("Ton post fait le buzz ! PR/min +1 🔁");
-        displayUpdate();
+          postCooldown = true;
+          updateInformations("Ton post fait le buzz ! PR/min +1 🔁");
+          displayUpdate();
+          console.log("ng post : ", postPublishedCount); //,
 
-        // Cooldown de 3 secondes
-        setTimeout(() => {
-          postCooldown = false;
-        }, 3000);
-      } else {
-        updateInformations("Pas assez de point réseau pour publier ce post 😓");
-      }
-    });
+          // désactive le bouton durant le cooldown
+          btnPostPublish.disabled = true;
+
+          // Cooldown de 30 secondes, le temps entre 2 post
+          setTimeout(() => {
+            postCooldown = false;
+            btnPostPublish.disabled = false;
+            updateInformations("Tu peux publier un autre post !");
+          }, 30000);
+        } else if (postCooldown) {
+          updateInformations(
+            "Tu dois attendre avant de publier un autre post."
+          );
+        } else {
+          updateInformations(
+            "Pas assez de point réseau pour publier ce post 😓"
+          );
+        }
+      });
+    }
 
     // Ajouter les boutons au DOM
     betterSocialSection.appendChild(btnPostComment);
@@ -396,8 +409,6 @@ function setupProfessionalMail() {
   btnProfessionalEmail.textContent = `J'achète un Email professionnel (${proEmailCost} PM)`;
   btnProfessionalEmail.classList.add("click-button");
   btnProfessionalEmail.style.backgroundColor = "#90ee90";
-
-  //-> Ajouter le bouton au DOM
 
   btnProfessionalEmail.addEventListener("click", () => {
     if (motivation >= proEmailCost && !isProEmailBought) {
@@ -563,7 +574,6 @@ async function loadMalusData() {
     console.log("Erreur lors du chargement des malus : ", error);
     updateInformations("Erreur de chargement des malus du jeu : 😱");
   }
-  startMalusTimerIfReady();
 }
 
 //* Fonction pour tirer un malus au hasard
@@ -625,15 +635,4 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("certification").style.display = "none";
   if (document.getElementById("stopMalus"))
     document.getElementById("stopMalus").style.display = "none";
-
-  // Ajouter un bouton temporaire pour tester les malus //, PAS MARCHE
-  // const stopMalusBtn = document.createElement("button");
-  // stopMalusBtn.textContent = "Stop les malus pendant 3min";
-  // stopMalusBtn.addEventListener("click", () => {
-  //   malusActif = true;
-  //   setTimeout(() => {
-  //     malusActif = false;
-  //   }, 30000);
-  // });
-  // document.body.appendChild(stopMalusBtn);
 });
