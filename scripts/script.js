@@ -2,15 +2,16 @@
 //#region Variables
 //-> --- Coût en PM ou PR pour activer un bonus ---
 const autoclickCost = 300; //' PM pour activer l'autoclic : 300
-const socialCost = 10; //' PM pour activer le réseau : 100
-const commentPostCost = 30; //' PM pour commenter un post : 300
-const publishPostCost = 18; //' PR pour publier un post : 75
+const socialCost = 100; //' PM pour activer le réseau : 100
+const commentPostCost = 300; //' PM pour commenter un post : 300
+const publishPostCost = 75; //' PR pour publier un post : 75
 const bestCvCost = 20; //' PM pour améliorer le CV : 20
 const bestMlCost = 50; //' PM pour améliorer la LM : 50
-const proEmailCost = 350; //' acheter un mail pro : 350
-const courseOnlineCost = 0;
-const webinarCoest = 0;
-const certificationCost = 0;
+const proEmailCost = 350; //' achat mail pro : 350
+const onlineCourseCost = 200; //' achat cours en ligne : 200
+const motivationalWebinarCost = 250; //' achat webinaire : 250PM + 75PR (publishPostCost)
+const certificationCost = 500; //' achat formation certif : 500PM + 100PR
+const antiPenaltyScript = 800; //' achat script anti malus : 800PM + 200PR
 
 //-> --- Variables principales ---
 let motivation = 0;
@@ -359,7 +360,7 @@ function createSocialNetwork() {
           social -= publishPostCost;
           postPublishedCount++;
           // passiveBonusPR += prPassifIncrement; // nouveau calcul de gain passif
-          passiveBonusPR += postPublishedCount 
+          passiveBonusPR += postPublishedCount;
 
           postCooldown = true;
           updateInformations("Ton post fait le buzz ! PR/min +1 🔁");
